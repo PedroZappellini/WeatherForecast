@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {ImageBackground} from 'react-native';
 import BackgorundImg from '../../assets/background/Background.png';
 
@@ -6,18 +6,44 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import config from '../../configs/index.json';
 import * as S from './styles';
 import defaultTheme from '../../themes';
-import WeatherContext from '../../contexts/weather';
 import PlacesCard from '../../components/PlacesCard';
 
+interface ILocation {
+  lat: number;
+  lng: number;
+}
+
+interface IGeometry {
+  location: ILocation;
+}
+
+interface IDetails {
+  formatted_address: string;
+  geometry: IGeometry;
+  name: string;
+  url: string;
+}
+
 const SearchScreen: React.FC = () => {
-  const {id, setId} = useContext(WeatherContext);
   const [lat, setLat] = useState();
   const [lng, setLng] = useState();
   const [url, setUrl] = useState();
   const [name, setName] = useState('');
-  const [formatedName, setFormatedName] = useState();
+  const [formatedName, setFormatedName] = useState('');
   const [listenText, setListenText] = useState('');
   const [showCard, setShowCard] = useState(false);
+  const [details, setDetails] = useState<IDetails>({} as IDetails);
+
+  useEffect(() => {
+    if (showCard) {
+      setLat(details?.geometry.location.lat);
+      setLng(details?.geometry.location.lng);
+      setFormatedName(details?.formatted_address);
+      setListenText(formatedName);
+      setName(details?.name);
+      setUrl(details?.url);
+    }
+  }, [showCard, formatedName, details]);
 
   return (
     <ImageBackground source={BackgorundImg} style={{flex: 1, zIndex: 100}}>
@@ -25,14 +51,8 @@ const SearchScreen: React.FC = () => {
         <GooglePlacesAutocomplete
           onPress={(data, details) => {
             console.log(details, 'UHAUHASUHASHU');
+            setDetails(details);
             setShowCard(true);
-            setLat(details?.geometry.location.lat);
-            setLng(details?.geometry.location.lng);
-            setFormatedName(details?.formatted_address);
-            setListenText(formatedName);
-            setName(details?.name);
-            setId(details?.place_id);
-            setUrl(details?.url);
           }}
           placeholder="Buscar..."
           textInputProps={{
