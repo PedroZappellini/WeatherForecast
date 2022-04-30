@@ -50,7 +50,6 @@ const SearchScreen: React.FC = () => {
       <S.Container>
         <GooglePlacesAutocomplete
           onPress={(data, details) => {
-            console.log(details, 'UHAUHASUHASHU');
             setDetails(details);
             setShowCard(true);
           }}
